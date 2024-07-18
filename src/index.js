@@ -19,16 +19,16 @@ let tasks = [];
 // получение
 app.get('/groups', (request, reply) => {
   reply.send(groups);
-  reply.status(201).send(groups);
+  reply.status(200).send(groups);
 });
 
 // создание
 app.post('/groups', (request, reply) => {
   const {
-    body: { title, color },
+    body: { groupTitle, color },
   } = request;
 
-  const groupObj = { id: Date.now().toString(), title, color };
+  const groupObj = { id: Date.now().toString(), groupTitle, color };
 
   groups.push(groupObj);
 
@@ -38,11 +38,11 @@ app.post('/groups', (request, reply) => {
 // редактирование
 app.patch('/groups/:id', (request, replay) => {
   const { id } = request.params;
-  const { title, color } = request.body;
+  const { groupTitle, color } = request.body;
 
   groups = groups.map((item) => {
     if (item.id === id) {
-      return { ...item, title, color };
+      return { ...item, groupTitle, color };
     }
     return item;
   });
@@ -62,18 +62,18 @@ app.delete('/groups/:id', (request, replay) => {
 /*** Задачи ***/
 // получение
 app.get('/tasks', (request, reply) => {
-  reply.status(202).send(tasks);
+  reply.status(200).send(tasks);
 });
 
 // создание
 app.post('/tasks', (request, reply) => {
   const {
-    body: { title, description, createData, createTime, groupId },
+    body: { taskTitle, description, createData, createTime, groupId },
   } = request;
 
   const taskObj = {
     id: Date.now().toString(),
-    title,
+    taskTitle,
     description,
     createData,
     createTime,
@@ -90,11 +90,11 @@ app.post('/tasks', (request, reply) => {
 // редактирование
 app.patch('/tasks/:id', (request, replay) => {
   const { id } = request.params;
-  const { title, description } = request.body;
+  const { taskTitle, description } = request.body;
 
   tasks = tasks.map((item) => {
     if (item.id === id) {
-      return { ...item, title, description, createTime: Date.now().toString(), isEdited: true };
+      return { ...item, taskTitle, description, createTime: Date.now().toString(), isEdited: true };
     }
     return item;
   });
