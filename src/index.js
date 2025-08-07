@@ -7,7 +7,7 @@ app.register(import('@fastify/cookie'));
 app.register(import('@fastify/cors'), {
   origin: ['http://localhost:63342', 'http://localhost:3000', 'https://abuldakov10.github.io'],
 });
-// For working with forms and files
+// Для раблоты с формами и файлами
 app.register(import('@fastify/multipart'), { addToBody: true });
 
 /*** Variables ***/
@@ -17,17 +17,14 @@ let tasks = [];
 /*** Method functions ***/
 /*** Группы ***/
 // получение
-app.get('/groups', (request, reply) => {
+app.get('/group/list', (request, reply) => {
   reply.send(groups);
   reply.status(200).send(groups);
 });
 
-// создание
-app.post('/groups', (request, reply) => {
-  const {
-    body: { groupTitle, color },
-  } = request;
-
+// добавление
+app.post('/group', (request, reply) => {
+  const { groupTitle, color } = request.body;
   const groupObj = { id: Date.now().toString(), groupTitle, color };
 
   groups.push(groupObj);
@@ -36,14 +33,15 @@ app.post('/groups', (request, reply) => {
 });
 
 // редактирование
-app.patch('/groups/:id', (request, replay) => {
-  const { id } = request.params;
+app.patch('/group/:groupId', (request, replay) => {
+  const { groupId } = request.params;
   const { groupTitle, color } = request.body;
 
   groups = groups.map((item) => {
-    if (item.id === id) {
+    if (item.id === groupId) {
       return { ...item, groupTitle, color };
     }
+
     return item;
   });
 
@@ -51,26 +49,21 @@ app.patch('/groups/:id', (request, replay) => {
 });
 
 // удаление
-app.delete('/groups/:id', (request, replay) => {
-  const { id } = request.params;
-
-  groups = groups.filter((item) => item.id !== id);
+app.delete('/group', (request, replay) => {
+  groups = groups.filter(({ id }) => !request.body.includes(id));
 
   replay.send(groups);
 });
 
 /*** Задачи ***/
 // получение
-app.get('/tasks', (request, reply) => {
+app.get('/task/list', (request, reply) => {
   reply.status(200).send(tasks);
 });
 
 // создание
-app.post('/tasks', (request, reply) => {
-  const {
-    body: { taskTitle, description, createData, createTime, groupId },
-  } = request;
-
+app.post('/task', (request, reply) => {
+  const { taskTitle, description, createData, createTime, groupId } = request.body;
   const taskObj = {
     id: Date.now().toString(),
     taskTitle,
@@ -88,14 +81,15 @@ app.post('/tasks', (request, reply) => {
 });
 
 // редактирование
-app.patch('/tasks/:id', (request, replay) => {
-  const { id } = request.params;
+app.patch('/task/:taskId', (request, replay) => {
+  const { taskId } = request.params;
   const { taskTitle, description } = request.body;
 
   tasks = tasks.map((item) => {
-    if (item.id === id) {
+    if (item.id === taskId) {
       return { ...item, taskTitle, description, createTime: Date.now().toString(), isEdited: true };
     }
+
     return item;
   });
 
@@ -103,14 +97,15 @@ app.patch('/tasks/:id', (request, replay) => {
 });
 
 // завершение
-app.patch('/tasks/done/:id', (request, reply) => {
-  const { id } = request.params;
-  const taskObj = tasks.find((item) => item.id === id);
+app.patch('/task/done/:taskId', (request, reply) => {
+  const { taskId } = request.params;
+  const taskObj = tasks.find(({ id }) => id === taskId);
 
   tasks = tasks.map((item) => {
-    if (item.id === id) {
+    if (item.id === taskId) {
       return { ...item, isDone: !taskObj.isDone };
     }
+
     return item;
   });
 
@@ -118,10 +113,10 @@ app.patch('/tasks/done/:id', (request, reply) => {
 });
 
 // удаление
-app.delete('/tasks/:id', (request, replay) => {
-  const { id } = request.params;
+app.delete('/task/:taskId', (request, replay) => {
+  const { taskId } = request.params;
 
-  tasks = tasks.filter((item) => item.id !== id);
+  tasks = tasks.filter(({ id }) => id !== taskId);
 
   replay.send(tasks);
 });
