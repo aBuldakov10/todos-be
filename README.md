@@ -38,8 +38,8 @@
     "id": string,
     "taskTitle": string,
     "description": string,
-    "createData": string,
-    "createTime": string,
+    "createDate": string,
+    "editDate": string,
     "isEdited": boolean,
     "isDone": boolean,
     "groupId": string,
@@ -49,9 +49,8 @@
 - **id** - генерируется в виде текущего времени в мс.
 - **taskTitle** - название задачи.
 - **description** - описание задачи.
-- **createData** - дата создания задачи.
-- **createTime** - время создания задачи. после редактирования
-    отображается время последнего редактирования.
+- **createDate** - дата создания задачи. возвращает дату в **UTC**.
+- **editDate** - время редактирования задачи. возвращает дату в **UTC**.
 - **isEdited** - состояние редактирования задачи.
 - **isDone** - состояние выполнения задачи.
 - **groupId** - id группы, к которой принадлежит эта задача.
@@ -64,4 +63,4 @@
     запроса принимает объект с обязательными полями **taskTitle**
     и **description**.\
 **PATCH** '/task/done/{id}' - изменение статуса задачи.\
-**DELETE** '/task/{id}' - удаление задачи.
+**DELETE** '/task' - удаление задачи. в теле запроса принимает массив строк с **id** задач.

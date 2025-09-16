@@ -7,8 +7,7 @@ app.register(import('@fastify/cookie'));
 app.register(import('@fastify/cors'), {
   origin: ['http://localhost:63342', 'http://localhost:3000', 'https://abuldakov10.github.io'],
 });
-// Для раблоты с формами и файлами
-app.register(import('@fastify/multipart'), { addToBody: true });
+app.register(import('@fastify/multipart'), { addToBody: true }); // Для работы с формами и файлами
 
 /*** Variables ***/
 let groups = [];
@@ -50,7 +49,8 @@ app.patch('/group/:groupId', (request, replay) => {
 
 // удаление
 app.delete('/group', (request, replay) => {
-  groups = groups.filter(({ id }) => !request.body.includes(id));
+  groups = groups.filter(({ id }) => !request.body.includes(id)); // удаление группы
+  tasks = tasks.filter(({ groupId }) => !request.body.includes(groupId)); // удаление задач для этой группы
 
   replay.send(groups);
 });
@@ -63,13 +63,14 @@ app.get('/task/list', (request, reply) => {
 
 // создание
 app.post('/task', (request, reply) => {
-  const { taskTitle, description, createData, createTime, groupId } = request.body;
+  const { taskTitle, description, groupId } = request.body;
+
   const taskObj = {
     id: Date.now().toString(),
     taskTitle,
     description,
-    createData,
-    createTime,
+    createDate: new Date().toISOString(), // время в UTC
+    editDate: null,
     isEdited: false,
     isDone: false,
     groupId,
@@ -83,11 +84,11 @@ app.post('/task', (request, reply) => {
 // редактирование
 app.patch('/task/:taskId', (request, replay) => {
   const { taskId } = request.params;
-  const { taskTitle, description } = request.body;
+  const { description } = request.body;
 
   tasks = tasks.map((item) => {
     if (item.id === taskId) {
-      return { ...item, taskTitle, description, createTime: Date.now().toString(), isEdited: true };
+      return { ...item, description, editDate: new Date().toISOString(), isEdited: true };
     }
 
     return item;
@@ -113,10 +114,8 @@ app.patch('/task/done/:taskId', (request, reply) => {
 });
 
 // удаление
-app.delete('/task/:taskId', (request, replay) => {
-  const { taskId } = request.params;
-
-  tasks = tasks.filter(({ id }) => id !== taskId);
+app.delete('/task', (request, replay) => {
+  tasks = tasks.filter(({ id }) => !request.body.includes(id));
 
   replay.send(tasks);
 });
